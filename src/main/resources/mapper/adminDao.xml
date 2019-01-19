@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 命名空间指向dao接口 -->
+<mapper namespace="com.aaa.dao.AdminMapper">
+    <cache eviction="LRU" type="com.aaa.util.RedisCache" />
+	<select id="findAllAdmins" resultType="map">
+		select * from admins
+	</select>
+	<delete id="delAdminById" parameterType="String">
+		delete from admins where id=#{fdsaf}
+	</delete>
+</mapper>
