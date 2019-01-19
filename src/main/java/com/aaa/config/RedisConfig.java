@@ -1,10 +1,15 @@
 package com.aaa.config;
 
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.data.redis.connection.RedisClusterConfiguration;
+import org.springframework.data.redis.connection.RedisNode;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 
 import com.aaa.util.RedisCacheTransfer;
@@ -62,12 +67,12 @@ public class RedisConfig {
 		return jpc;
 	}
 	/**
-	 * 创建Spring-redis连接池管理工厂 类（bean）
+	 * 创建Spring-redis连接池管理工厂 类（bean）单机版
 	 *TODO 
 	 *@return
 	 *2018-7-11下午1:56:23
 	 */
-     @Bean
+/*     @Bean
 	public  JedisConnectionFactory getJedisConnectionFactory() {
 		JedisConnectionFactory jedisConnectionFactory= new JedisConnectionFactory();
 		jedisConnectionFactory.setHostName(hostName);
@@ -75,7 +80,41 @@ public class RedisConfig {
 		jedisConnectionFactory.setPoolConfig(getPoolConfig());
 		return jedisConnectionFactory;
 
-	}
+	}*/
+	/**
+	 * 创建redis集群配置bean
+	 *TODO 
+	 *@return
+	 *2018-7-11下午1:56:23
+	 */
+     @Bean
+     public  RedisClusterConfiguration getRedisClusterConfiguration() {
+    	 RedisClusterConfiguration redisClusterConfiguration = new RedisClusterConfiguration();
+ 		redisClusterConfiguration.setMaxRedirects(3);
+ 		Set<RedisNode> nodes= new HashSet<RedisNode>();
+ 		// 初始化集群节点
+ 		for (int i = 7001; i < 7007; i++) {
+ 			RedisNode redisNode= new RedisNode(hostName,i);
+ 			nodes.add(redisNode);
+ 		}
+ 		redisClusterConfiguration.setClusterNodes(nodes);
+ 		return redisClusterConfiguration;
+     }
+ 	/**
+ 	 * 创建Spring-redis连接池管理工厂 类（bean）集群版
+ 	 *TODO 
+ 	 *@return
+ 	 *2018-7-11下午1:56:23
+ 	 */
+     
+     @Bean
+ 	public  JedisConnectionFactory getJedisConnectionFactory() {
+    	//构造注入集群信息clusterConfig和redis poolconfig
+ 		JedisConnectionFactory jedisConnectionFactory= new JedisConnectionFactory(getRedisClusterConfiguration(),getPoolConfig());
+ 		return jedisConnectionFactory;
+
+ 	}
+     
 	/**
 	 * 使用中间类解决RedisCache.jedisConnectionFactory的静态注入，从而使MyBatis实现第三方缓存
 	 *TODO 
